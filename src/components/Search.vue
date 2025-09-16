@@ -9,7 +9,7 @@ onMounted(() => {
     time.value = new Date().toLocaleTimeString()
   }, 1000)
 
-  searchEngine.value = JSON.parse(localStorage.getItem('searchEngine'))
+  searchEngine.value = JSON.parse(localStorage.getItem('searchEngine')) || siteConfig.searchEngineList[0]
 
   document.addEventListener('keydown', e => {
     if (e.altKey) {
