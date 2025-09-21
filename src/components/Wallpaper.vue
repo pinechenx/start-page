@@ -1,6 +1,6 @@
 <template>
-  <div class="container" v-show="store.imgLoaded">
-    <img :src="wallpaper" class="bg-img" @load="imgLoadComplete" alt="wallpaper" />
+  <div class="container" :class="{ 'show': store.imgLoaded }">
+    <img :src="wallpaper" class="bg-img" :class="{ 'animate': store.imgLoaded }" @load="imgLoadComplete" alt="wallpaper" />
     <div class="cover"></div>
   </div>
 </template>
@@ -38,6 +38,11 @@ const imgLoadComplete = () => {
   z-index: -1;
   overflow: hidden;
   transition: 0.25s;
+  opacity: 0;
+
+  &.show {
+    opacity: 1;
+  }
 
   .bg-img {
     position: absolute;
@@ -49,8 +54,10 @@ const imgLoadComplete = () => {
     backface-visibility: hidden;
     filter: blur(10px) brightness(0.3);
     transform: scale(1.5);
-    animation: fade-blur-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    animation-delay: 0.36s;
+    &.animate {
+      animation: fade-blur-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      animation-delay: 0.36s;
+    }
   }
   .cover {
     position: absolute;
