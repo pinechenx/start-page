@@ -1,22 +1,30 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import siteConfig from '@/config/site.config.js'
-const time = ref('')
-const searchEngine = ref(siteConfig.searchEngineList[0])
-onMounted(() => {
-  time.value = new Date().toLocaleTimeString()
-  setInterval(() => {
-    time.value = new Date().toLocaleTimeString()
-  }, 1000)
+import { useClock } from '@/composables/useClock.js'
+import { debounce, runWhenIdle } from '@/utils/debounce.js'
 
+const { time } = useClock()
+const searchEngine = ref(siteConfig.searchEngineList[0])
+
+const saveToStorage = debounce((engine) => {
+  runWhenIdle(() => {
+    localStorage.setItem('searchEngine', JSON.stringify(engine))
+  })
+}, 300)
+
+onMounted(() => {
   searchEngine.value = JSON.parse(localStorage.getItem('searchEngine')) || siteConfig.searchEngineList[0]
 
-  document.addEventListener('keydown', e => {
-    if (e.altKey) {
-      if (e.key >= 1 && e.key <= siteConfig.searchEngineList.length) {
-        changeSearchEngine(siteConfig.searchEngineList[e.key - 1])
-      }
+  const handleKeydown = (e) => {
+    if (e.altKey && e.key >= 1 && e.key <= siteConfig.searchEngineList.length) {
+      changeSearchEngine(siteConfig.searchEngineList[e.key - 1])
     }
+  }
+  document.addEventListener('keydown', handleKeydown)
+
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeydown)
   })
 })
 
@@ -28,9 +36,9 @@ function submit(e) {
 }
 
 function changeSearchEngine(list) {
-  localStorage.setItem('searchEngine', JSON.stringify(list))
   searchEngine.value = list
   showEngineList.value = false
+  saveToStorage(list)
 }
 
 const showEngineList = ref(false)
@@ -50,6 +58,7 @@ const showEngineList = ref(false)
         class="engine-list"
         v-for="list in siteConfig.searchEngineList"
         :key="list.name"
+        v-memo="[list.name]"
         @click="changeSearchEngine(list)">
         <div class="engine-info">
           <div class="engine-icon">

@@ -39,6 +39,7 @@ const imgLoadComplete = () => {
   overflow: hidden;
   transition: 0.25s;
   opacity: 0;
+  contain: layout style paint;
 
   &.show {
     opacity: 1;
@@ -52,9 +53,10 @@ const imgLoadComplete = () => {
     height: 100%;
     object-fit: cover;
     backface-visibility: hidden;
+    transform: translateZ(0) scale(1.5);
     filter: blur(10px) brightness(0.3);
-    transform: scale(1.5);
     &.animate {
+      will-change: transform, filter, opacity;
       animation: fade-blur-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
       animation-delay: 0.36s;
     }
